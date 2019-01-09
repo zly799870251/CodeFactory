@@ -1,0 +1,164 @@
+<#include "/macro.include"/>
+<#assign className = table.className>   
+<#assign classNameLower = className?uncap_first> 
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdd.api.dao.${className}Mapper">
+
+	<!-- Result Map -->
+    <resultMap id="BaseResultMap" type="com.sdd.api.pojo.${className}">
+        <#list table.columns as column>
+		<#if column.pk>
+		<id column="${column.sqlName}" jdbcType="BIGINT" property="${column.columnNameLower}" />
+		<#else>
+        <result column="${column.sqlName}" jdbcType="${column.jdbcSqlTypeName}" property="${column.columnNameLower}"/>
+		</#if>
+		</#list>
+    </resultMap>
+
+	<!-- Common column -->
+	<sql id="commonColumns">
+        <#list table.columns as column>
+		${column.sqlName} <#if column_has_next>,</#if>
+        </#list>
+	</sql>
+
+	<!-- Common condition -->
+	<sql id="commonConditions">
+		<where>
+            1 = 1
+			<#list table.columns as column>
+            <#if column.sqlName != "is_deleted">
+			<if test="${column.columnNameLower} != null">
+				and ${column.sqlName} = ${"#{"} ${column.columnNameLower} ${"}"}
+			</if>
+            </#if>
+			</#list>
+		</where>
+	</sql>
+
+	<!-- Create a record -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="${classNameLower}Id" parameterType="com.sdd.api.pojo.${className}">
+        INSERT INTO
+        ${table.sqlName} (
+        <#list table.columns as column>
+        	<#if !column.pk>
+        	${column.sqlName} <#if column_has_next>,</#if>
+        	</#if>
+        </#list>
+        ) VALUES (
+        <#list table.columns as column>
+        	<#if !column.pk>
+			<#if column.sqlName == 'create_time' || column.sqlName == 'update_time'>
+			getdate() <#if column_has_next>,</#if>
+			<#elseif  column.sqlName == 'is_deleted'>
+			0 <#if column_has_next>,</#if>
+			<#else>
+			${"#{"} ${column.columnNameLower} ${"}"} <#if column_has_next>,</#if>
+			</#if>
+        	</#if>
+        </#list>
+        )
+    </insert>
+
+	<!-- Query record by page -->
+	<select id="queryByPage" resultMap="BaseResultMap">
+		select
+		<include refid="commonColumns"/>
+		from ${table.sqlName}
+		<include refid="commonConditions"/>
+        and is_deleted = '0'
+		order by
+			<#list table.compositeIdColumns as column>
+			${column.sqlName} asc
+			</#list>
+	</select>
+
+    <!-- Find unique record by id -->
+	<select id="findById" resultMap="BaseResultMap">
+		select
+		<include refid="commonColumns"/>
+		from ${table.sqlName}
+		where
+			<#list table.compositeIdColumns as column>
+			${column.sqlName} = ${"#{"} ${column.columnNameLower} ${"}"} <#if column_has_next>,</#if>
+			</#list>
+	</select>
+
+    <!-- Update a record by id -->
+    <update id="update" parameterType="com.sdd.api.pojo.${className}">
+		update ${table.sqlName} set
+			<#list table.columns as column>
+			<#if !column.pk>
+			<#if column.sqlName != "is_deleted" && column.sqlName != "create_time" && column.sqlName != "create_user">
+			<#if column.sqlName == 'create_time' || column.sqlName == 'update_time'>
+			${column.sqlName} = getdate() <#if column_has_next>,</#if>
+			<#else>
+			${column.sqlName} = ${"#{"} ${column.columnNameLower} ${"}"} <#if column_has_next>,</#if>
+			</#if>
+			<#else>
+			${column.sqlName} = ${column.sqlName} <#if column_has_next>,</#if>
+			</#if>
+			</#if>
+			</#list>
+		where
+			<#list table.compositeIdColumns as column>
+			${column.sqlName} = ${"#{"} ${column.columnNameLower} ${"}"} <#if column_has_next>,</#if>
+			</#list>
+    </update>
+
+    <!-- Delete a set of ids for a record -->
+	<update id="delete">
+		update ${table.sqlName}
+		set is_deleted = '1' ,
+		update_time = getdate() ,
+		update_user = ${"#{"} updateUser ${"}"}
+		where
+			<#list table.compositeIdColumns as column>
+			${column.sqlName} = ${"#{"} id ${"}"}
+			</#list>
+	</update>
+
+	<!-- Insert a set of list for a record -->
+	<insert id="insertBatch" parameterType="java.util.List">
+		INSERT INTO ${table.sqlName} (
+		<#list table.columns as column>
+		<#if !column.pk>
+		${column.sqlName} <#if column_has_next>,</#if>
+		</#if>
+		</#list>
+		) VALUES
+		<foreach collection="records" item="item" index="index" separator=",">
+		(
+		<#list table.columns as column>
+		<#if !column.pk>
+		<#if column.sqlName == 'create_time' || column.sqlName == 'update_time'>
+		getdate() <#if column_has_next>,</#if>
+		<#elseif  column.sqlName == 'is_deleted'>
+		'0' <#if column_has_next>,</#if>
+		<#else>
+		${"#{"} item.${column.columnNameLower} ${"}"} <#if column_has_next>,</#if>
+		</#if>
+		</#if>
+		</#list>
+		)
+		</foreach>
+	</insert>
+
+	<!-- Delete a set of ids for a record -->
+	<update id="deleteBatch">
+		update ${table.sqlName}
+		set is_deleted = '1' ,
+		update_time = getdate() ,
+		update_user = ${"#{"} updateUser ${"}"}
+		where
+		<#list table.compositeIdColumns as column>
+		${column.sqlName} in (
+		<foreach collection="ids" item="item" index="index" separator=",">
+			${"#{"} item ${"}"}
+		</foreach>
+		)
+		</#list>
+	</update>
+
+</mapper>

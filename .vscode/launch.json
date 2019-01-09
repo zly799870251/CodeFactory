@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - CodeGenerator",
+            "request": "launch",
+            "mainClass": "codefactory.CodeGenerator",
+            "projectName": "codeFactory"
+        }
+    ]
+}
