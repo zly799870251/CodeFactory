@@ -27,12 +27,12 @@ import java.util.List;
 public class ${className}Dto extends BaseDto {
 
     <#list table.columns as column>
-        <#if column.sqlName != 'create_time' && column.sqlName != 'update_time' && column.sqlName != 'create_user' && column.sqlName != 'update_user' && column.sqlName != 'is_deleted'>
-        <#if column.simpleJavaType == 'Date'>
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-        </#if>
-        private ${column.simpleJavaType} ${column.columnNameLower};
-        </#if>
+    <#if column.sqlName != 'create_time' && column.sqlName != 'update_time' && column.sqlName != 'create_user' && column.sqlName != 'update_user' && column.sqlName != 'is_deleted'>
+    <#if column.simpleJavaType == 'Date'>
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    </#if>
+    private ${column.simpleJavaType} ${column.columnNameLower};
+    </#if>
     </#list>
 
 }

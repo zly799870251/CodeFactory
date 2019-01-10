@@ -13,6 +13,8 @@ import com.sdd.api.pojo.${className};
 import com.sdd.common.base.BaseService;
 import com.sdd.common.core.ErrorTypeEnum;
 import com.sdd.common.core.Result;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,10 +60,8 @@ public class ${className}Service extends BaseService {
 	 */
     public Result create(List<${className}Dto> dtoList){
         Result result = new Result(ErrorTypeEnum.OK);
-        List<${className}> pojoList = dto2Pojos(dtoList);
-        int flag = mapper.insertBatch(pojoList);
-        if (flag <= 0) {
-        	result.setErrorType(ErrorTypeEnum.DELETE_ERROR);
+        for (${className}Dto dto : dtoList) {
+			create(dto);
         }
         return result;
 	}
@@ -79,7 +79,16 @@ public class ${className}Service extends BaseService {
 		HashMap<String, Object> params = new HashMap<>();
 		// todo Write the query condition field in dto to params
 
-		return new PageInfo<${className}Dto>(pojo2Dtos(mapper.queryByPage(params)));
+		List<${className}> pojoList = mapper.queryByPage(params);
+        List<${className}Dto> dtoList = pojo2Dtos(pojoList);
+
+        PageInfo<${className}> pojoPageInfo = new PageInfo(pojoList);
+        PageInfo<${className}Dto> dtoPageInfo = new PageInfo();
+
+        BeanUtils.copyProperties(pojoPageInfo, dtoPageInfo);
+        dtoPageInfo.setList(dtoList);
+
+        return dtoPageInfo;
 	}
 
 	/**
