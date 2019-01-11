@@ -8,15 +8,13 @@ import com.sdd.api.pojo.${className};
 
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 /**
  * ${className} mapper
  *
- * @author Becypress
- * @date 2019-01-04
+ * @author zhangly
+ * @date 2019-01-01
  */
 public interface ${className}Mapper {
 
@@ -31,10 +29,10 @@ public interface ${className}Mapper {
     /**
      * Query record by page
      *
-     * @param params Query condition map
+     * @param params Query condition
      * @return Page object of query record
      */
-    List<${className}> queryByPage(HashMap<String, Object> params);
+    List<${className}> query(${className} params);
 
     /**
      * Find unique record by id

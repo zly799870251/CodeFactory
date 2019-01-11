@@ -15,8 +15,8 @@ import java.util.List;
 /**
  * ${className} map struct
  *
- * @author Becypress
- * @date 2019-01-04
+ * @author zhangly
+ * @date 2019-01-01
  */
 
 @Mapper(componentModel = "spring")

@@ -62,7 +62,7 @@
     </insert>
 
 	<!-- Query record by page -->
-	<select id="queryByPage" resultMap="BaseResultMap">
+	<select id="query" resultMap="BaseResultMap">
 		select
 		<include refid="commonColumns"/>
 		from ${table.sqlName}

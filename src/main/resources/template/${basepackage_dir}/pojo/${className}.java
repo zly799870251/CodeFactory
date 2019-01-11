@@ -17,8 +17,8 @@ import java.util.List;
 /**
  * ${className} Pojo
  *
- * @author Becypress
- * @date 2019-01-04
+ * @author zhangly
+ * @date 2019-01-01
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -26,7 +26,11 @@ import java.util.List;
 public class ${className} extends BasePoJo {
 
     <#list table.columns as column>
-    <#if column.sqlName != 'create_time' && column.sqlName != 'update_time' && column.sqlName != 'create_user' && column.sqlName != 'update_user' && column.sqlName != 'is_deleted'>
+    <#if column.sqlName != 'create_time' 
+        && column.sqlName != 'update_time' 
+        && column.sqlName != 'create_user' 
+        && column.sqlName != 'update_user' 
+        && column.sqlName != 'is_deleted'>
     <#if column.simpleJavaType == 'Date'>
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     </#if>

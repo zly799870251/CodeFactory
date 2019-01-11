@@ -22,8 +22,8 @@ import java.util.List;
 /**
  * ${className} controller
  *
- * @author Becypress
- * @date 2019-01-04
+ * @author zhangly
+ * @date 2019-01-01
  */
 @RestController
 @RequestMapping(value = "/${classNameLower}")
@@ -69,12 +69,6 @@ public class ${className}Controller extends BaseController{
 	@RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ApiResult<Void> add(@RequestBody ${className}Dto dto) {
 		ApiResult<Void> result = new ApiResult<>(ErrorTypeEnum.OK);
-		// TODO validate
-//		if (StringUtils.isBlank(dto.get...()) || StringUtils.isBlank(dto.get...())) {
-//			result.setErrorType(ErrorTypeEnum.ERROR_VALIDATE);
-//			return result;
-//		}
-
 		Result serviceResult = service.create(dto);
 		result.setResult(serviceResult);
 		return result;
@@ -91,12 +85,6 @@ public class ${className}Controller extends BaseController{
 	public ApiResult<Void> update(@PathVariable("id") Long id,
 											@RequestBody ${className}Dto dto) {
 		ApiResult<Void> result = new ApiResult<>(ErrorTypeEnum.OK);
-		// TODO validate
-//		if (StringUtils.isBlank(dto.get...()) || StringUtils.isBlank(dto.get...())) {
-//			result.setErrorType(ErrorTypeEnum.ERROR_VALIDATE);
-//			return result;
-//		}
-
 		Result serviceResult = service.update(dto);
 		result.setResult(serviceResult);
 		return result;
@@ -111,7 +99,7 @@ public class ${className}Controller extends BaseController{
 	@RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ApiResult<Void> delete(@RequestBody ${className}Dto dto) {
 		ApiResult<Void> result = new ApiResult<>(ErrorTypeEnum.OK);
-		Result serviceResult = service.delete(dto);
+		Result serviceResult = service.delete(dto.getIdList(), dto.getUserName());
 		result.setResult(serviceResult);
 		return result;
 	}

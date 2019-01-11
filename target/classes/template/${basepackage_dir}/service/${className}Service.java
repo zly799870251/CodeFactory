@@ -44,9 +44,9 @@ public class ${className}Service extends BaseService {
 	 */
 	public Result create(${className}Dto dto){
         Result result = new Result(ErrorTypeEnum.OK);
-        ${className} pojo = dto2Pojo(dto);
-        int flag = mapper.insert(pojo);
-        if (flag <= 0) {
+        dto.setCreateUser(dto.getUserName());
+        dto.setUpdateUser(dto.getUserName());
+        if (mapper.insert(dto2Pojo(dto)) <= 0) {
             result.setErrorType(ErrorTypeEnum.DELETE_ERROR);
         }
         return result;
@@ -60,8 +60,12 @@ public class ${className}Service extends BaseService {
 	 */
     public Result create(List<${className}Dto> dtoList){
         Result result = new Result(ErrorTypeEnum.OK);
+        boolean answer = true;
         for (${className}Dto dto : dtoList) {
-			create(dto);
+            answer = answer ? create(dto).getStatus() == 0 : false;
+        }
+        if (!answer) {
+            result.setErrorType(ErrorTypeEnum.DELETE_ERROR);
         }
         return result;
 	}
@@ -75,19 +79,12 @@ public class ${className}Service extends BaseService {
 	public PageInfo<${className}Dto> queryByPage(${className}Dto dto){
 		PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
 		PageHelper.orderBy(dto.getOrderby());
-
-		HashMap<String, Object> params = new HashMap<>();
-		// todo Write the query condition field in dto to params
-
-		List<${className}> pojoList = mapper.queryByPage(params);
+		List<${className}> pojoList = mapper.query(dto2Pojo(dto));
         List<${className}Dto> dtoList = pojo2Dtos(pojoList);
-
         PageInfo<${className}> pojoPageInfo = new PageInfo(pojoList);
         PageInfo<${className}Dto> dtoPageInfo = new PageInfo();
-
         BeanUtils.copyProperties(pojoPageInfo, dtoPageInfo);
         dtoPageInfo.setList(dtoList);
-
         return dtoPageInfo;
 	}
 
@@ -98,10 +95,7 @@ public class ${className}Service extends BaseService {
 	 * @return List of query record
 	 */
 	public List<${className}Dto> query(${className}Dto dto){
-		HashMap<String, Object> params = new HashMap<>();
-		// todo Write the query condition field in dto to params
-
-		return pojo2Dtos(mapper.queryByPage(params));
+		return pojo2Dtos(mapper.query(dto2Pojo(dto)));
 	}
 
 	/**
@@ -121,10 +115,9 @@ public class ${className}Service extends BaseService {
 	 * @return Execute operation result
 	 */
 	public Result update(${className}Dto dto) {
-		Result result = new Result(ErrorTypeEnum.OK);
-		${className} pojo = dto2Pojo(dto);
-		int flag = mapper.update(pojo);
-		if (flag <= 0) {
+        Result result = new Result(ErrorTypeEnum.OK);
+        dto.setUpdateUser(dto.getUserName());
+		if (mapper.update(dto2Pojo(dto)) <= 0) {
 			result.setErrorType(ErrorTypeEnum.DELETE_ERROR);
 		}
 		return result;
@@ -138,9 +131,13 @@ public class ${className}Service extends BaseService {
 	 */
 	public Result update(List<${className}Dto> dtoList) {
 		Result result = new Result(ErrorTypeEnum.OK);
-		for (${className}Dto dto : dtoList){
-			update(dto);
-		}
+        boolean answer = true;
+        for (${className}Dto dto : dtoList) {
+            answer = answer ? update(dto).getStatus() == 0 : false;
+        }
+        if (!answer) {
+            result.setErrorType(ErrorTypeEnum.DELETE_ERROR);
+        }
 		return result;
 	}
 
@@ -153,8 +150,7 @@ public class ${className}Service extends BaseService {
 	 */
 	public Result delete(Long id, String updateUser) {
 		Result result = new Result(ErrorTypeEnum.OK);
-		int flag = mapper.delete(id, updateUser);
-		if (flag <= 0) {
+		if (mapper.delete(id, updateUser) <= 0) {
 			result.setErrorType(ErrorTypeEnum.DELETE_ERROR);
 		}
 		return result;
@@ -166,12 +162,15 @@ public class ${className}Service extends BaseService {
 	 * @param dto Front end passed dto
 	 * @return Execute operation result
 	 */
-	public Result delete(${className}Dto dto) {
+	public Result delete(List<Long> idList, String updateUser) {
 		Result result = new Result(ErrorTypeEnum.OK);
-		int flag = mapper.deleteBatch(dto.getIdList(), dto.getUpdateUser());
-		if (flag <= 0) {
-			result.setErrorType(ErrorTypeEnum.DELETE_ERROR);
-		}
+        boolean answer = true;
+        for (Long id : idList) {
+            answer = answer ? delete(id, updateUser).getStatus() == 0 : false;
+        }
+        if (!answer) {
+            result.setErrorType(ErrorTypeEnum.DELETE_ERROR);
+        }
 		return result;
 	}
 
@@ -181,7 +180,7 @@ public class ${className}Service extends BaseService {
 	 * @param pojo Pojo to be converted
 	 * @return Converted operation result
 	 */
-	private ${className}Dto pojo2Dto(${className} pojo){
+	public ${className}Dto pojo2Dto(${className} pojo){
 		${className}Dto answer = mapStruct.fromPojo2Dto(pojo);
 		// todo write json field converte
 		return answer;
@@ -193,7 +192,7 @@ public class ${className}Service extends BaseService {
 	 * @param dto Dto to be converted
 	 * @return Converted operation result
 	 */
-	private ${className} dto2Pojo(${className}Dto dto) {
+	public ${className} dto2Pojo(${className}Dto dto) {
 		${className} answer = mapStruct.fromDto2Pojo(dto);
 		// todo write json field converte
 		return answer;
@@ -205,7 +204,7 @@ public class ${className}Service extends BaseService {
 	 * @param pojoList Pojo list to be converted
 	 * @return Converted operation result
 	 */
-	private List<${className}Dto> pojo2Dtos(List<${className}> pojoList){
+	public List<${className}Dto> pojo2Dtos(List<${className}> pojoList){
 		List<${className}Dto> answer = new LinkedList<>();
 		for (${className} pojo : pojoList){
 			answer.add(pojo2Dto(pojo));
@@ -219,7 +218,7 @@ public class ${className}Service extends BaseService {
 	 * @param dtoList Dto list to be converted
 	 * @return Converted operation result
 	 */
-	private List<${className}> dto2Pojos(List<${className}Dto> dtoList){
+	public List<${className}> dto2Pojos(List<${className}Dto> dtoList){
 		List<${className}> answer = new LinkedList<>();
 		for (${className}Dto dto : dtoList){
 			answer.add(dto2Pojo(dto));
